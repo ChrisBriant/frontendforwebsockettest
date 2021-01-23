@@ -1,5 +1,7 @@
 import {useEffect, useReducer} from 'react';
 import sock from '../services/socket';
+import SendName from './SendName';
+import Rooms from './Rooms';
 import Users from './Users';
 
 const TestConnect = () => {
@@ -11,7 +13,9 @@ const TestConnect = () => {
                           response:'',
                           showNameDialog:false,
                           users: [],
-                          myId:null
+                          myId:null,
+                          myName:null,
+                          rooms:null
   };
 
   function reducer(state, action) {
@@ -21,11 +25,14 @@ const TestConnect = () => {
       case 'showNameDialog':
         return {...state, showNameDialog : true};
       case 'clientList':
-        console.log('here is the client list',action.payload)
         return {...state, users : action.payload};
-      case 'register':
+      case 'setName':
         console.log(action.payload);
+        return {...state, myName : action.payload};
+      case 'register':
         return {...state, myId : action.payload};
+      case 'roomList':
+        return {...state, rooms : action.payload};
       default:
         return state;
     }
@@ -53,15 +60,18 @@ const TestConnect = () => {
           console.log(data);
           switch(data.type) {
               case 'register':
-                console.log(data.yourid);
                 dispatch({type:'register', payload:data.yourid});
                 break;
               case 'client_list':
-                console.log(data.clients);
                 dispatch({type:'clientList', payload:data.clients});
                 break;
+              case 'set_name':
+                dispatch({type:'setName', payload:data.message});
+                break;
+              case 'room_list':
+                dispatch({type:'roomList', payload:JSON.parse(data.rooms)});
+                break;
               default:
-                console.log("Got: " + e.data);
                 dispatch({type:'setResponse', payload:data.message});
           }
        }
@@ -87,9 +97,16 @@ const TestConnect = () => {
 
   return (
     <div>
-      { state.myId ? <p>{state.myId}</p> : <p>Loading...</p>}
-      <Users users={state.users}/>
-      <p>Hello World!</p>
+      { state.myName ?
+        <>
+          <p>{state.myName}</p>
+          <Rooms userId={state.myId} rooms={state.rooms}/>
+        </> :
+        <>
+          <p>Loading...</p>
+          <SendName userId={state.myId} />
+        </>
+      }
       <button onClick={sendMessage}>Send Message</button>
       <p>{state.response}</p>
     </div>
