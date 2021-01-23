@@ -2,6 +2,7 @@ import {useEffect, useReducer} from 'react';
 import sock from '../services/socket';
 import SendName from './SendName';
 import Rooms from './Rooms';
+import Room from './Room';
 import Users from './Users';
 
 const TestConnect = () => {
@@ -15,7 +16,10 @@ const TestConnect = () => {
                           users: [],
                           myId:null,
                           myName:null,
-                          rooms:null
+                          rooms:null,
+                          inRoom: false,
+                          roomName: '',
+                          roomMessages: []
   };
 
   function reducer(state, action) {
@@ -33,6 +37,12 @@ const TestConnect = () => {
         return {...state, myId : action.payload};
       case 'roomList':
         return {...state, rooms : action.payload};
+      case 'enterRoom':
+        return {  ...state,
+                  inRoom : true,
+                  roomName: action.payload.name,
+                  roomMessages : [...state.roomMessages, action.payload.client_id ]
+      };
       default:
         return state;
     }
@@ -71,6 +81,10 @@ const TestConnect = () => {
               case 'room_list':
                 dispatch({type:'roomList', payload:JSON.parse(data.rooms)});
                 break;
+              case 'room_entrance':
+                console.log('enter room',data);
+                dispatch({type:'enterRoom', payload:data.client});
+                break;
               default:
                 dispatch({type:'setResponse', payload:data.message});
           }
@@ -100,18 +114,27 @@ const TestConnect = () => {
       { state.myName ?
         <>
           <p>{state.myName}</p>
-          <Rooms userId={state.myId} rooms={state.rooms}/>
+          {
+            state.inRoom ?
+              <Room userId={state.myId}
+                    name={state.myName}
+                    roomName={state.roomName}/> :
+              <Rooms userId={state.myId} rooms={state.rooms}/>
+          }
+
         </> :
         <>
           <p>Loading...</p>
           <SendName userId={state.myId} />
         </>
       }
-      <button onClick={sendMessage}>Send Message</button>
-      <p>{state.response}</p>
+
     </div>
   )
 }
 
+//REMOVED FOR TIME BEING
+// <button onClick={sendMessage}>Send Message</button>
+// <p>{state.response}</p>
 
 export default TestConnect;

@@ -20,18 +20,28 @@ const Rooms = (props) => {
     await sock.send(JSON.stringify(payload));
   }
 
+  const enterRoom = async (e) => {
+    console.log('Trying to enter the room', e.target.id);
+    let payload = {
+      'type' : 'enter_room',
+      'client_id' : props.userId,
+      'name' : e.target.id
+    }
+    await sock.send(JSON.stringify(payload));
+  }
+
   return (
     <>
       <div className="inline-input">
         <label>Room Name:
           <input id="room-name" type="text" value={roomName} onChange={handleChange} />
-          <button onClick={handleSend}>Create</button>
+          <button id="sendroom" onClick={handleSend}>Create</button>
         </label>
       </div>
       <div>
         { props.rooms ?
           props.rooms.map((room,i) => (
-            <button id={room.name} key={i} onClick={console.log('click')}>{room.name}</button>
+            <button id={room.name} key={i} onClick={enterRoom}>{room.name}</button>
           )) :
           null
         }

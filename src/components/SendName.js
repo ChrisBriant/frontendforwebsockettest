@@ -22,7 +22,7 @@ const SendName = (props) => {
     <div className="inline-input">
       <label>Enter name:
         <input id="name" type="text" value={name} onChange={handleChange} />
-        <button onClick={handleSend}>Send</button>
+        <button id="sendname" onClick={handleSend}>Send</button>
       </label>
     </div>
   );
