@@ -1,10 +1,17 @@
 import {useState, useRef} from 'react';
-import ContentEditable from 'react-contenteditable'
 //import { animateScroll } from "react-scroll";
 import sock from '../services/socket';
 
 const Room = (props) => {
   console.log(props);
+
+  // useEffect( ()=> {
+  //   console.log('Using room effect');
+  //   animateScroll.scrollToBottom({
+  //     containerId: "chatmessage"
+  //   });
+  // }, props.roomMessages.length);
+
   const contentEditable = useRef('');
   const [message,setMessage] = useState('');
 

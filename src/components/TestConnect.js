@@ -1,4 +1,5 @@
 import {useEffect, useReducer} from 'react';
+import { animateScroll } from "react-scroll";
 import sock from '../services/socket';
 import SendName from './SendName';
 import Rooms from './Rooms';
@@ -21,6 +22,14 @@ const TestConnect = () => {
                           roomName: '',
                           roomMessages: [],
                           otherMembers: []
+  };
+
+
+  const scrollDown = () => {
+    console.log('Using room effect');
+    animateScroll.scrollToBottom({
+      containerId: "messages"
+    });
   };
 
   function reducer(state, action) {
@@ -80,6 +89,7 @@ const TestConnect = () => {
                   otherMembers
         };
         case 'roomMessage':
+          scrollDown();
           msg = `${action.payload.client.name}: ${action.payload.message} `;
           return {  ...state,
                     roomMessages : [...state.roomMessages,{ class:'message', msg }],
@@ -139,6 +149,8 @@ const TestConnect = () => {
        }
      }
   }, [] );
+
+
 
   const sendMessage = async () => {
     console.log('Message sent');
