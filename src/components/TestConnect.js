@@ -19,10 +19,17 @@ const TestConnect = () => {
                           rooms:null,
                           inRoom: false,
                           roomName: '',
-                          roomMessages: []
+                          roomMessages: [],
+                          otherMembers: []
   };
 
   function reducer(state, action) {
+    let msg;
+    let otherMembers;
+    let inRoom;
+    let roomMessages;
+    let roomName;
+
     switch (action.type) {
       case 'setResponse':
         return {...state, response : action.payload};
@@ -38,11 +45,40 @@ const TestConnect = () => {
       case 'roomList':
         return {...state, rooms : action.payload};
       case 'enterRoom':
+        console.log('Tying to enter the room', action.payload);
+        if (action.payload.client.name === state.myName) {
+          msg = `Welcome, you have entered ${action.payload.name}.`;
+        } else {
+          msg = `${action.payload.client.name} has entered the room.`;
+        }
+        otherMembers = action.payload.members.filter((item) => (item.id !== state.myId));
         return {  ...state,
                   inRoom : true,
                   roomName: action.payload.name,
-                  roomMessages : [...state.roomMessages, action.payload.client_id ]
-      };
+                  roomMessages : [...state.roomMessages,{ class:'entrance', msg }],
+                  otherMembers
+        };
+      case 'exitRoom':
+        msg = `${action.payload.client.name} has left the room.`;
+        //Declare variables for state as dependant on user being leaver
+        roomMessages= [...state.roomMessages,{ class:'entrance', msg }];
+        console.log('I AM LEAVING THE ROOM',action.payload.client.id,state.myId);
+        if(action.payload.client.id === state.myId) {
+          inRoom = false;
+          roomName = '';
+          otherMembers = [];
+          roomMessages = [];
+        } else {
+          inRoom = true;
+          roomName = action.payload.name;
+          otherMembers = action.payload.members.filter((item) => (item.id !== state.myId));
+        }
+        return {  ...state,
+                  inRoom,
+                  roomName,
+                  roomMessages,
+                  otherMembers
+        };
       default:
         return state;
     }
@@ -82,8 +118,11 @@ const TestConnect = () => {
                 dispatch({type:'roomList', payload:JSON.parse(data.rooms)});
                 break;
               case 'room_entrance':
-                console.log('enter room',data);
-                dispatch({type:'enterRoom', payload:data.client});
+                dispatch({type:'enterRoom', payload:data});
+                break;
+              case 'room_exit':
+                console.log('exit room',data);
+                dispatch({type:'exitRoom', payload:data});
                 break;
               default:
                 dispatch({type:'setResponse', payload:data.message});
@@ -113,15 +152,17 @@ const TestConnect = () => {
     <div>
       { state.myName ?
         <>
-          <p>{state.myName}</p>
+          <p>Welcome {state.myName}</p>
           {
             state.inRoom ?
               <Room userId={state.myId}
                     name={state.myName}
-                    roomName={state.roomName}/> :
+                    roomName={state.roomName}
+                    roomMessages={state.roomMessages}
+                    otherMembers={state.otherMembers}
+                    /> :
               <Rooms userId={state.myId} rooms={state.rooms}/>
           }
-
         </> :
         <>
           <p>Loading...</p>

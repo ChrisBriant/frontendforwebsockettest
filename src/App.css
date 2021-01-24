@@ -104,3 +104,21 @@ button:disabled:  button,
   .inline-input {
     display: flex;
   }
+
+  .message-div {
+    height: 5rem;
+    width: 20rem;
+    text-align: left;
+    margin-bottom: 1rem;
+    overflow: auto;
+    font-size: 70%;
+  }
+
+  .editable-div {
+    background-color: white;
+    color: #282c34;
+    height: 5rem;
+    width: 20rem;
+    text-align: left;
+    margin-bottom: 1rem;
+  }
