@@ -79,6 +79,11 @@ const TestConnect = () => {
                   roomMessages,
                   otherMembers
         };
+        case 'roomMessage':
+          msg = `${action.payload.client.name}: ${action.payload.message} `;
+          return {  ...state,
+                    roomMessages : [...state.roomMessages,{ class:'message', msg }],
+          };
       default:
         return state;
     }
@@ -123,6 +128,10 @@ const TestConnect = () => {
               case 'room_exit':
                 console.log('exit room',data);
                 dispatch({type:'exitRoom', payload:data});
+                break;
+              case 'room_message':
+                console.log('room message',data);
+                dispatch({type:'roomMessage', payload:data});
                 break;
               default:
                 dispatch({type:'setResponse', payload:data.message});
