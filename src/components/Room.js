@@ -1,4 +1,4 @@
-import {useState, useRef} from 'react';
+import {useState} from 'react';
 //import { animateScroll } from "react-scroll";
 import sock from '../services/socket';
 
@@ -12,8 +12,9 @@ const Room = (props) => {
   //   });
   // }, props.roomMessages.length);
 
-  const contentEditable = useRef('');
+  //const contentEditable = useRef('');
   const [message,setMessage] = useState('');
+  const [pm,setPm] = useState(null);
 
   const exitRoom = async () => {
     let payload = {
@@ -29,7 +30,7 @@ const Room = (props) => {
     setMessage(e.target.value);
   }
 
-  const sendMessage = async (e) => {
+  const sendRoomMessage = async () => {
     let payload = {
       'type' : 'message_room',
       'client_id' : props.userId,
@@ -39,6 +40,43 @@ const Room = (props) => {
     await sock.send(JSON.stringify(payload));
   }
 
+
+  const sendMessage = async (e) => {
+    //Check for the '@' symbol with a username
+    let sendingPm = message.search(/@([^].)\w+/i);
+    if (sendingPm == 0) {
+      console.log('Sending private message')
+      //Get the user and check exists
+      let person = message.split(':')[0].split('@')[1]
+      let personMember = props.otherMembers.filter((m) => (m.name === person));
+      if(personMember.length > 0) {
+        console.log('Person Exists',personMember);
+        let payload = {
+          'type' : 'room_pm',
+          'client_id' : personMember[0].id,
+          'message' : message,
+          'sender' : props.name
+        }
+        console.log('SENDING', payload);
+        await sock.send(JSON.stringify(payload));
+      } else {
+        console.log('Person does not exist');
+        //sendRoomMessage();
+      }
+    } else {
+      console.log('Sending room message');
+      //sendRoomMessage();
+    }
+
+
+  }
+
+  const pmMember = async (member) => {
+    console.log('send a private message',member);
+    setMessage(`@${member.name}: `);
+    setPm(member);
+  }
+
   return (
     <>
       <p>You are in {props.roomName}</p>
@@ -46,7 +84,7 @@ const Room = (props) => {
         <p>Also in the room:</p>
         {
           props.otherMembers.map((member,i) => (
-            <button id={member.id} key={i}>{member.name}</button>
+            <button id={member.id} key={i} onClick={() => pmMember(member)}>{member.name}</button>
           ))
         }
       </div>
@@ -62,6 +100,7 @@ const Room = (props) => {
       <textarea
         id="chatmessage"
         onChange={handleEditMessage}
+        value={message}
       />
       <button id="send-message" onClick={sendMessage}>Send</button>
       <div>

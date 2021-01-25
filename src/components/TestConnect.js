@@ -88,12 +88,26 @@ const TestConnect = () => {
                   roomMessages,
                   otherMembers
         };
-        case 'roomMessage':
-          scrollDown();
-          msg = `${action.payload.client.name}: ${action.payload.message} `;
-          return {  ...state,
-                    roomMessages : [...state.roomMessages,{ class:'message', msg }],
-          };
+      case 'roomMessage':
+        scrollDown();
+        msg = `${action.payload.client.name}: ${action.payload.message} `;
+        return {  ...state,
+                  roomMessages : [...state.roomMessages,{ class:'message', msg }],
+        };
+      case 'roomPm':
+        scrollDown();
+        msg = `${action.payload.sender}: ${action.payload.message} `;
+        return {  ...state,
+                  roomMessages : [...state.roomMessages,{ class:'pm', msg }],
+        };
+      case 'destroyRoom':
+        //Forces an exit of room
+        return {  ...state,
+                  inRoom : false,
+                  roomName :'',
+                  roomMessages:[],
+                  otherMembers:[]
+        };
       default:
         return state;
     }
@@ -136,12 +150,16 @@ const TestConnect = () => {
                 dispatch({type:'enterRoom', payload:data});
                 break;
               case 'room_exit':
-                console.log('exit room',data);
                 dispatch({type:'exitRoom', payload:data});
                 break;
+              case 'destroy_room':
+                dispatch({type:'destroyRoom', payload:data});
+                break;
               case 'room_message':
-                console.log('room message',data);
                 dispatch({type:'roomMessage', payload:data});
+                break;
+              case 'room_pm':
+                dispatch({type:'roomPm', payload:data});
                 break;
               default:
                 dispatch({type:'setResponse', payload:data.message});
