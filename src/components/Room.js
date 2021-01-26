@@ -59,13 +59,17 @@ const Room = (props) => {
         }
         console.log('SENDING', payload);
         await sock.send(JSON.stringify(payload));
+        //Clear message
+        setMessage('');
       } else {
         console.log('Person does not exist');
-        //sendRoomMessage();
+        sendRoomMessage();
+        setMessage('');
       }
     } else {
       console.log('Sending room message');
-      //sendRoomMessage();
+      sendRoomMessage();
+      setMessage('');
     }
 
 

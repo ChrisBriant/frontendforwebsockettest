@@ -7,7 +7,12 @@ const Rooms = (props) => {
   const [roomName,setName] = useState('');
 
   const handleChange = (e) => {
-    setName(e.target.value);
+    let compareChar = /^[A-Za-z0-9/ ]*$/i;
+    if(e.target.value.match(compareChar)) {
+      setName(e.target.value);
+    } else {
+      console.log('Special Characters Not Allowed');
+    }
   }
 
   const handleSend = async () => {

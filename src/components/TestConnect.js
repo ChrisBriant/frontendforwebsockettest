@@ -80,7 +80,9 @@ const TestConnect = () => {
         } else {
           inRoom = true;
           roomName = action.payload.name;
-          otherMembers = action.payload.members.filter((item) => (item.id !== state.myId));
+          otherMembers = action.payload.members.filter((item) => (item.id !== state.myId))
+            .filter((item) => (item.name !== action.payload.client.name));
+          console.log('Other members here', otherMembers);
         }
         return {  ...state,
                   inRoom,
@@ -95,6 +97,7 @@ const TestConnect = () => {
                   roomMessages : [...state.roomMessages,{ class:'message', msg }],
         };
       case 'roomPm':
+        console.log('Pay me now',action.payload);
         scrollDown();
         msg = `${action.payload.sender}: ${action.payload.message} `;
         return {  ...state,
@@ -158,7 +161,7 @@ const TestConnect = () => {
               case 'room_message':
                 dispatch({type:'roomMessage', payload:data});
                 break;
-              case 'room_pm':
+              case 'in_room_pm':
                 dispatch({type:'roomPm', payload:data});
                 break;
               default:
@@ -204,7 +207,7 @@ const TestConnect = () => {
           }
         </> :
         <>
-          <p>Loading...</p>
+          <p>Welcome</p>
           <SendName userId={state.myId} />
         </>
       }
