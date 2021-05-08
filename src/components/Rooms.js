@@ -7,6 +7,10 @@ const Rooms = (props) => {
   const [roomName,setName] = useState('');
   const [password,setPassword] = useState('');
   const [secure,setSecure] = useState(false);
+  //For entering room
+  const [passwordForRoom,setPasswordForRoom] = useState('');
+  const [passwordRequired,setPasswordRequired] = useState(false);
+  const [selectedRoom,setSelectedRoom] = useState('');
 
   const handleChange = (e) => {
     let compareChar = /^[A-Za-z0-9/ ]*$/i;
@@ -19,52 +23,69 @@ const Rooms = (props) => {
 
   const handleSend = async () => {
     if(password !== '') {
-      secure=true;
+      setSecure(true);
     } else {
-      secure=false;
+      setSecure(false);
     }
     let payload = {
       'type' : 'create_room',
       'client_id' : props.userId,
       'name' : roomName,
       'secure': secure,
-      'password' : passsword
+      'password' : password
     }
     console.log(payload);
     await sock.send(JSON.stringify(payload));
   }
 
-  const enterRoom = async (e) => {
-    console.log('Trying to enter the room', e.target.id);
-    let payload = {
-      'type' : 'enter_room',
-      'client_id' : props.userId,
-      'name' : e.target.id
+  const enterRoom = async (e,secure) => {
+    console.log('Trying to enter the room', e.target.id,secure );
+    if(!secure) {
+      let payload = {
+        'type' : 'enter_room',
+        'client_id' : props.userId,
+        'name' : e.target.id
+      }
+      await sock.send(JSON.stringify(payload));
+    } else {
+      setPasswordRequired(true);
     }
-    await sock.send(JSON.stringify(payload));
+  }
+
+
+  const enterSecureRoom = async (e) => {
+    console.log('Trying to enter the room', e.target.id);
+    //// TODO: send a payload with the password
   }
 
   return (
     <>
-      <div className="inline-input">
-        <label>Room Name:
-          <input id="room-name" type="text" value={roomName} onChange={handleChange} />
-          <button id="sendroom" onClick={() => setSecure(true)}>Add Password</button>
-          { secure
-            ? <input id="password" type="text" value={password} onChange={setPassword} />
-            : null
-          }  
-          <button id="sendroom" onClick={handleSend}>Create</button>
-        </label>
-      </div>
-      <div>
-        { props.rooms ?
-          props.rooms.map((room,i) => (
-            <button id={room.name} key={i} onClick={enterRoom}>{room.name}</button>
-          )) :
-          null
+      { !passwordRequired
+        ? 
+            <div className="inline-input">
+              <label>Room Name:
+                <input id="room-name" type="text" value={roomName} onChange={handleChange} />
+                <button id="sendroom" onClick={() => setSecure(true)}>Add Password</button>
+                { secure
+                  ? <input id="password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  : null
+                }
+                <button id="sendroom" onClick={handleSend}>Create</button>
+              </label>
+              <div>
+                { props.rooms ?
+                  props.rooms.map((room,i) => (
+                    <button id={room.name} key={i} onClick={(e) => enterRoom(e,room.secure)}>{room.name}</button>
+                  )) :
+                  null
+                }
+              </div>
+            </div>
+        : <div>
+            <input id="passwordForRoom" type="text" value={passwordForRoom} onChange={(e) => setPasswordForRoom(e.target.value)} />
+            <button id={selectedRoom} onClick={(e) => enterSecureRoom(e)}>Enter</button>
+          </div>
         }
-      </div>
     </>
   )
 
