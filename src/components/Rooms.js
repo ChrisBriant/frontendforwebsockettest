@@ -5,6 +5,8 @@ const Rooms = (props) => {
   console.log('Here are the props',props);
 
   const [roomName,setName] = useState('');
+  const [password,setPassword] = useState('');
+  const [secure,setSecure] = useState(false);
 
   const handleChange = (e) => {
     let compareChar = /^[A-Za-z0-9/ ]*$/i;
@@ -16,10 +18,17 @@ const Rooms = (props) => {
   }
 
   const handleSend = async () => {
+    if(password !== '') {
+      secure=true;
+    } else {
+      secure=false;
+    }
     let payload = {
       'type' : 'create_room',
       'client_id' : props.userId,
-      'name' : roomName
+      'name' : roomName,
+      'secure': secure,
+      'password' : passsword
     }
     console.log(payload);
     await sock.send(JSON.stringify(payload));
@@ -40,6 +49,11 @@ const Rooms = (props) => {
       <div className="inline-input">
         <label>Room Name:
           <input id="room-name" type="text" value={roomName} onChange={handleChange} />
+          <button id="sendroom" onClick={() => setSecure(true)}>Add Password</button>
+          { secure
+            ? <input id="password" type="text" value={password} onChange={setPassword} />
+            : null
+          }  
           <button id="sendroom" onClick={handleSend}>Create</button>
         </label>
       </div>
