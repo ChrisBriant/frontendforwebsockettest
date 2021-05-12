@@ -1,4 +1,4 @@
-import {useEffect, useReducer} from 'react';
+import {useEffect, useReducer,useState} from 'react';
 import { animateScroll } from "react-scroll";
 import sock from '../services/socket';
 import SendName from './SendName';
@@ -10,6 +10,11 @@ const TestConnect = () => {
   // const wsproto = 'wss';
   // const wsuri = wsproto + "://" + window.location.hostname + ":8080/ws";
   // let sock = new WebSocket(wsuri);
+
+  //// TODO: Use the functions setRoomPassword and getRoomPassword in the
+  //rooms and room components
+
+  const [roomPassword,setRoomPassword] = useState('');
 
   const initialState = {
                           response:'',
@@ -188,6 +193,11 @@ const TestConnect = () => {
     }
   }
 
+ // const getRoomPassword = () => {
+ //   return roomPassword;
+ // }
+
+
   console.log('Something is rotten in the state of react', state);
 
   return (
@@ -202,8 +212,12 @@ const TestConnect = () => {
                     roomName={state.roomName}
                     roomMessages={state.roomMessages}
                     otherMembers={state.otherMembers}
-                    /> :
-              <Rooms userId={state.myId} rooms={state.rooms}/>
+                    roomPassword={roomPassword}
+                    />
+            : <Rooms userId={state.myId}
+                rooms={state.rooms}
+                setRoomPassword={setRoomPassword}
+                />
           }
         </> :
         <>

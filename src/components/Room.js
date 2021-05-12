@@ -35,7 +35,8 @@ const Room = (props) => {
       'type' : 'message_room',
       'client_id' : props.userId,
       'name' : props.roomName,
-      'message' : message
+      'message' : message,
+      'password' : props.roomPassword
     }
     await sock.send(JSON.stringify(payload));
   }

@@ -40,11 +40,14 @@ const Rooms = (props) => {
 
   const enterRoom = async (e,secure) => {
     console.log('Trying to enter the room', e.target.id,secure );
+    setSelectedRoom(e.target.id);
     if(!secure) {
       let payload = {
         'type' : 'enter_room',
         'client_id' : props.userId,
-        'name' : e.target.id
+        'name' : e.target.id,
+        'secure' : secure,
+        'password' : ''
       }
       await sock.send(JSON.stringify(payload));
     } else {
@@ -55,24 +58,34 @@ const Rooms = (props) => {
 
   const enterSecureRoom = async (e) => {
     console.log('Trying to enter the room', e.target.id);
-    //// TODO: send a payload with the password
+    props.setRoomPassword(passwordForRoom);
+    let payload = {
+      'type' : 'enter_room',
+      'client_id' : props.userId,
+      'name' : e.target.id,
+      'secure' : secure,
+      'password' : passwordForRoom
+    }
+    await sock.send(JSON.stringify(payload));
   }
 
   return (
     <>
       { !passwordRequired
-        ? 
+        ?
             <div className="inline-input">
-              <label>Room Name:
-                <input id="room-name" type="text" value={roomName} onChange={handleChange} />
-                <button id="sendroom" onClick={() => setSecure(true)}>Add Password</button>
-                { secure
-                  ? <input id="password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
-                  : null
-                }
-                <button id="sendroom" onClick={handleSend}>Create</button>
-              </label>
-              <div>
+              <div className="inline-input">
+                <label>Room Name:
+                  <input id="room-name" type="text" value={roomName} onChange={handleChange} />
+                  <button id="sendroom" onClick={() => setSecure(true)}>Add Password</button>
+                  { secure
+                    ? <input id="password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    : null
+                  }
+                  <button id="sendroom" onClick={handleSend}>Create</button>
+                </label>
+              </div>
+              <div className="inline-input">
                 { props.rooms ?
                   props.rooms.map((room,i) => (
                     <button id={room.name} key={i} onClick={(e) => enterRoom(e,room.secure)}>{room.name}</button>
